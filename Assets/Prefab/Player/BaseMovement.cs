@@ -12,10 +12,10 @@ public class BaseMovement : MonoBehaviour {
     public Animator animator;
 
     public float moveSpeed = 5f;
+    public float attackDamage = 1;
 
     private float horizontal;
     private float vertical;
-    private bool isFacingRight = true;
 
     private Transform attackingPoint;
     public Transform attackPointDown;
@@ -46,9 +46,10 @@ public class BaseMovement : MonoBehaviour {
             animator.SetFloat ("LastDirection", RightDirection);
         }
 
-        if (horizontal != 0) {
-            isFacingRight = horizontal >= 0 ? true : false;
-            sp.flipX = !isFacingRight;
+        if (horizontal != 0 && vertical == 0) {
+            sp.flipX = horizontal < 0;
+        } else if (vertical != 0) {
+            sp.flipX = false;
         }
 
         if (Input.GetKeyDown (KeyCode.J)) {
@@ -76,7 +77,7 @@ public class BaseMovement : MonoBehaviour {
             attackingPoint = attackPointUp;
         } else if (lastDirection == BottomDirection) {
             attackingPoint = attackPointDown;
-        } else if (isFacingRight) {
+        } else if (!sp.flipX) {
             attackingPoint = attackPointRight;
         } else {
             attackingPoint = attackPointLeft;
@@ -84,6 +85,7 @@ public class BaseMovement : MonoBehaviour {
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll (attackingPoint.position, attackRange, enemyLayers);
         foreach (Collider2D enemy in hitEnemies) {
             Debug.Log ("Hit enemy" + enemy.name);
+            enemy.GetComponent<EnemyScript> ().OnGetAttacked (1);
         }
     }
 
